@@ -1,62 +1,62 @@
 {
-    "CobraPose": {
-        "right_elbow": 66.38855006288024,
-        "left_elbow": 101.9099623022623,
-        "right_knee": 175.02820162751573,
-        "left_knee": 165.5675973040304
-    },
-    "WarriorII": {
-        "right_elbow": 173.25317336901634,
-        "left_elbow": 169.60553818164732,
-        "right_knee": 152.08663770778838,
-        "left_knee": 161.0816995908398
-    },
-    "ChildPose": {
-        "right_elbow": 172.32691356069634,
-        "left_elbow": 178.61612394990667,
-        "right_knee": 90.3259654964885,
-        "left_knee": 14.09018394137228
-    },
-    "PlankPose": {
-        "right_elbow": 122.98673682372255,
-        "left_elbow": 152.69426500546945,
-        "right_knee": 147.78495134423247,
-        "left_knee": 131.9817866316533
-    },
-    "TreePose": {
-        "right_elbow": 98.4310178841818,
-        "left_elbow": 97.78263932670524,
-        "right_knee": 177.804688465549,
-        "left_knee": 9.098769935412822
+    "BridgePose": {
+        "right_elbow": 129.62088341832813,
+        "left_elbow": 144.50381484873685,
+        "right_knee": 44.466126293121086,
+        "left_knee": 43.69047722368328
     },
     "ChairPose": {
-        "right_elbow": 168.38875566124017,
-        "left_elbow": 164.66449511510643,
-        "right_knee": 22.123173219105038,
-        "left_knee": 24.654033515317018
+        "right_elbow": 156.19633319978078,
+        "left_elbow": 147.45380335576803,
+        "right_knee": 76.70477049057028,
+        "left_knee": 60.62906453347669
+    },
+    "ChildPose": {
+        "right_elbow": 42.85367560043825,
+        "left_elbow": 96.56667211797092,
+        "right_knee": 25.643455703013945,
+        "left_knee": 20.71461694329768
+    },
+    "CobraPose": {
+        "right_elbow": 28.70775900435824,
+        "left_elbow": 36.21792466042799,
+        "right_knee": 105.85477506503229,
+        "left_knee": 99.2155958318954
     },
     "DownDogPose": {
-        "right_elbow": 176.50654036470408,
-        "left_elbow": 164.71145657271435,
-        "right_knee": 62.734511317104285,
-        "left_knee": 101.2378983842261
-    },
-    "WarriorI": {
-        "right_elbow": 170.0556724812301,
-        "left_elbow": 167.16347884978694,
-        "right_knee": 99.13509127380044,
-        "left_knee": 149.1461840661104
+        "right_elbow": 10.06508256297355,
+        "left_elbow": 13.484625902541797,
+        "right_knee": 38.374857269275886,
+        "left_knee": 43.12182634821762
     },
     "GoddessPose": {
-        "right_elbow": 101.86336560909625,
-        "left_elbow": 111.64479683725028,
-        "right_knee": 115.01131432247577,
-        "left_knee": 106.76041632260348
+        "right_elbow": 4.741680913976076,
+        "left_elbow": 47.71284464551546,
+        "right_knee": 92.74560186009171,
+        "left_knee": 121.64655422756286
     },
-    "BridgePose": {
-        "right_elbow": 92.12774694146722,
-        "left_elbow": 14.397827379040457,
-        "right_knee": 68.85988702036131,
-        "left_knee": 55.905725191471554
+    "PlankPose": {
+        "right_elbow": 178.68595282889387,
+        "left_elbow": 178.30385690919093,
+        "right_knee": 177.97490143564463,
+        "left_knee": 179.86061818898696
+    },
+    "TreePose": {
+        "right_elbow": 178.03258713166844,
+        "left_elbow": 178.12665825982663,
+        "right_knee": 161.83168787383727,
+        "left_knee": 69.52124536645206
+    },
+    "WarriorI": {
+        "right_elbow": 170.8759327697757,
+        "left_elbow": 154.1263224966334,
+        "right_knee": 74.82513067177621,
+        "left_knee": 168.7808294157402
+    },
+    "WarriorII": {
+        "right_elbow": 42.98736545757233,
+        "left_elbow": 25.769417038210612,
+        "right_knee": 131.29470887973253,
+        "left_knee": 29.296438562616355
     }
 }
