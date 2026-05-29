@@ -1,51 +1,328 @@
+
 import cv2
 import mediapipe as mp
+import numpy as np
 import os
 import csv
 
-# initialize mediapipe
+# -------------------------------
+# MediaPipe Pose Setup
+# -------------------------------
+
 mp_pose = mp.solutions.pose
-pose = mp_pose.Pose()
 
-# dataset path
-dataset_path = "AI_yogaPoseDataset"
+pose = mp_pose.Pose(
+    static_image_mode=True,
+    model_complexity=1,
+    smooth_landmarks=True,
+    enable_segmentation=False,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 
-# create CSV file
-with open("landmarks.csv", mode="w", newline="") as file:
-    writer = csv.writer(file)
+# -------------------------------
+# Dataset Path
+# -------------------------------
 
-    # header
-    header = ["pose"]
-    for i in range(33):
-        header += [f"x{i}", f"y{i}", f"z{i}"]
-    writer.writerow(header)
+DATASET_PATH = "AI_yogaPoseDataset"
 
-    # loop through each pose folder
-    for pose_name in os.listdir(dataset_path):
-        pose_folder = os.path.join(dataset_path, pose_name)
+# CSV Output File
+OUTPUT_FILE = "landmarks.csv"
 
-        if not os.path.isdir(pose_folder):
-            continue
+# -------------------------------
+# Angle Calculation Function
+# -------------------------------
 
-        print(f"Processing {pose_name}...")
+def calculate_angle(a, b, c):
 
-        # loop through each image
-        for image_name in os.listdir(pose_folder):
-            image_path = os.path.join(pose_folder, image_name)
+    a = np.array(a)
+    b = np.array(b)
+    c = np.array(c)
+
+    radians = np.arctan2(
+        c[1] - b[1],
+        c[0] - b[0]
+    ) - np.arctan2(
+        a[1] - b[1],
+        a[0] - b[0]
+    )
+
+    angle = np.abs(radians * 180.0 / np.pi)
+
+    if angle > 180:
+        angle = 360 - angle
+
+    return angle
+
+
+# -------------------------------
+# Store All Data
+# -------------------------------
+
+data = []
+
+# -------------------------------
+# Loop Through Pose Folders
+# -------------------------------
+
+for pose_name in os.listdir(DATASET_PATH):
+
+    pose_folder = os.path.join(DATASET_PATH, pose_name)
+
+    # Skip non folders
+    if not os.path.isdir(pose_folder):
+        continue
+
+    print(f"\nProcessing Pose: {pose_name}")
+
+    # -------------------------------
+    # Loop Through Images
+    # -------------------------------
+
+    for image_name in os.listdir(pose_folder):
+
+        image_path = os.path.join(
+            pose_folder,
+            image_name
+        )
+
+        try:
+
+            # -------------------------------
+            # Read Image
+            # -------------------------------
 
             image = cv2.imread(image_path)
+
             if image is None:
+                print(f"Could not read: {image_name}")
                 continue
 
-            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results = pose.process(rgb)
+            # -------------------------------
+            # Resize Image
+            # -------------------------------
 
-            if results.pose_landmarks:
-                row = [pose_name]
+            image = cv2.resize(image, (640, 480))
 
-                for lm in results.pose_landmarks.landmark:
-                    row += [lm.x, lm.y, lm.z]
+            # -------------------------------
+            # Blur Reduction
+            # -------------------------------
 
-                writer.writerow(row)
+            image = cv2.GaussianBlur(
+                image,
+                (3, 3),
+                0
+            )
 
-print("DONE — landmarks saved in landmarks.csv")
+            # -------------------------------
+            # Convert BGR to RGB
+            # -------------------------------
+
+            image_rgb = cv2.cvtColor(
+                image,
+                cv2.COLOR_BGR2RGB
+            )
+
+            # -------------------------------
+            # Pose Detection
+            # -------------------------------
+
+            results = pose.process(image_rgb)
+
+            # -------------------------------
+            # Check Landmarks
+            # -------------------------------
+
+            if not results.pose_landmarks:
+                print(f"No pose detected: {image_name}")
+                continue
+
+            landmarks = results.pose_landmarks.landmark
+
+            # -------------------------------
+            # Visibility Check
+            # -------------------------------
+
+            visibility_scores = [
+                lm.visibility for lm in landmarks
+            ]
+
+            avg_visibility = np.mean(
+                visibility_scores
+            )
+
+            if avg_visibility < 0.5:
+                print(f"Low visibility skipped: {image_name}")
+                continue
+
+            # -------------------------------
+            # Hip Normalization
+            # -------------------------------
+
+            hip_x = landmarks[23].x
+            hip_y = landmarks[23].y
+            hip_z = landmarks[23].z
+
+            row = []
+
+            # -------------------------------
+            # Extract Landmarks
+            # -------------------------------
+
+            for lm in landmarks:
+
+                row.append(lm.x - hip_x)
+                row.append(lm.y - hip_y)
+                row.append(lm.z - hip_z)
+
+            # -------------------------------
+            # Helper Function
+            # -------------------------------
+
+            def get_point(index):
+
+                return [
+                    landmarks[index].x,
+                    landmarks[index].y
+                ]
+
+            # -------------------------------
+            # Angle Features
+            # -------------------------------
+
+            angles = [
+
+                # Right Elbow
+                calculate_angle(
+                    get_point(12),
+                    get_point(14),
+                    get_point(16)
+                ),
+
+                # Left Elbow
+                calculate_angle(
+                    get_point(11),
+                    get_point(13),
+                    get_point(15)
+                ),
+
+                # Right Knee
+                calculate_angle(
+                    get_point(24),
+                    get_point(26),
+                    get_point(28)
+                ),
+
+                # Left Knee
+                calculate_angle(
+                    get_point(23),
+                    get_point(25),
+                    get_point(27)
+                ),
+
+                # Right Shoulder
+                calculate_angle(
+                    get_point(24),
+                    get_point(12),
+                    get_point(14)
+                ),
+
+                # Left Shoulder
+                calculate_angle(
+                    get_point(23),
+                    get_point(11),
+                    get_point(13)
+                ),
+
+                # Right Hip
+                calculate_angle(
+                    get_point(12),
+                    get_point(24),
+                    get_point(26)
+                ),
+
+                # Left Hip
+                calculate_angle(
+                    get_point(11),
+                    get_point(23),
+                    get_point(25)
+                )
+            ]
+
+            # Add Angles
+            row.extend(angles)
+
+            # Add Label
+            row.append(pose_name)
+
+            # Save Row
+            data.append(row)
+
+            print(f"Processed: {image_name}")
+
+        except Exception as e:
+
+            print(f"Error in {image_name}: {e}")
+
+# -------------------------------
+# CSV Header
+# -------------------------------
+
+header = []
+
+for i in range(33):
+
+    header += [
+        f"x{i}",
+        f"y{i}",
+        f"z{i}"
+    ]
+
+# Angle Names
+
+header += [
+
+    "r_elbow",
+    "l_elbow",
+
+    "r_knee",
+    "l_knee",
+
+    "r_shoulder",
+    "l_shoulder",
+
+    "r_hip",
+    "l_hip"
+]
+
+# Label Column
+
+header.append("label")
+
+# -------------------------------
+# Save CSV File
+# -------------------------------
+
+with open(
+    OUTPUT_FILE,
+    mode="w",
+    newline=""
+) as f:
+
+    writer = csv.writer(f)
+
+    writer.writerow(header)
+
+    writer.writerows(data)
+
+# -------------------------------
+# Final Output
+# -------------------------------
+
+print("\n================================")
+print("Landmark Extraction Completed")
+print("================================")
+
+print(f"Total Samples Saved: {len(data)}")
+print(f"CSV File Saved: {OUTPUT_FILE}")
+
